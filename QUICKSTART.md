@@ -46,7 +46,7 @@ php artisan migrate --seed
 
 This will:
 - Create all necessary database tables
-- Create demo users (admin and staff)
+- Create a demo admin user
 - Add sample products across all categories
 
 ### 7. Start the Server
@@ -65,15 +65,6 @@ The application will be available at: **http://localhost:8000**
 - **Email**: admin@example.com
 - **Password**: password
 
-### Staff Accounts
-- **Email**: staff@example.com
-- **Password**: password
-
-OR
-
-- **Email**: staff2@example.com
-- **Password**: password
-
 ---
 
 ## First-Time Usage Guide
@@ -83,16 +74,9 @@ OR
 2. Check the **Dashboard** for key metrics
 3. Visit **Categories** to view product categories
 4. Go to **Products** to see the sample inventory
-5. Check **Staff** to manage team members
-6. Navigate to **Reports** to view sample sales data
-
-### As Staff:
-1. Log in with staff credentials
-2. View the **Dashboard** showing today's metrics
-3. Click **New Sale** to practice recording a transaction
-4. Select products and quantities
-5. Choose a payment method
-6. Complete the sale and view the receipt
+5. Navigate to **Reports** to view sales data
+6. Click **New Sale** to record a transaction
+7. Select products and quantities, choose payment method, and complete the sale
 
 ---
 
@@ -140,7 +124,7 @@ php artisan serve --port=8001
 4. Save and product appears in inventory
 
 ### Record a Sale
-1. Log in as Staff
+1. Log in as Admin
 2. Click "New Sale"
 3. Search and select products
 4. Adjust quantities as needed
@@ -154,18 +138,13 @@ php artisan serve --port=8001
 4. Use filters if needed
 5. View detailed analytics
 
-### Manage Staff
-1. Log in as Admin
-2. Go to Staff
-3. Create, edit, or deactivate accounts as needed
-
 ---
 
 ## Key Features to Explore
 
 ✓ Real-time stock updates  
 ✓ Low-stock alerts  
-✓ Sales filtering by date, product, staff  
+✓ Sales filtering by date and product  
 ✓ Profit margin calculations  
 ✓ Interactive dashboards with charts  
 ✓ Receipt printing  
@@ -188,9 +167,8 @@ If you encounter any issues:
 After installation:
 1. Explore the admin dashboard
 2. Manage product inventory
-3. Create additional staff accounts
-4. Practice recording sales
-5. Review generated reports
-6. Customize system settings as needed
+3. Practice recording sales
+4. Review generated reports
+5. Customize system settings as needed
 
 Happy selling! 🚀

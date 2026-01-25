@@ -10,7 +10,7 @@ A fully functional, production-ready inventory and sales management system for r
 ## What Has Been Delivered
 
 ### 1. Database Architecture (6 Tables)
-- ✓ **users** - Admin and Staff authentication with role-based access
+- ✓ **users** - Admin authentication with secure access
 - ✓ **categories** - 5 product categories (Laptops, Accessories, Consoles, Games, Gaming Accessories)
 - ✓ **products** - Full product inventory with pricing and stock tracking
 - ✓ **sales** - Transaction records with payment method tracking
@@ -19,9 +19,9 @@ A fully functional, production-ready inventory and sales management system for r
 
 ### 2. Authentication & Authorization
 - ✓ Secure login system with password hashing (bcrypt)
-- ✓ Role-based access control (Admin vs Staff)
+- ✓ Admin-only access control
 - ✓ Session-based authentication
-- ✓ Account activation/deactivation system
+- ✓ Account activation system
 - ✓ Protected routes with middleware
 
 ### 3. Admin Features (Complete)
@@ -50,29 +50,21 @@ A fully functional, production-ready inventory and sales management system for r
 - Category descriptions
 - Product count per category
 
-#### Staff Management
-- Create staff accounts with secure passwords
-- Edit staff information
-- Activate/deactivate staff accounts
-- View staff list with join dates
+#### Sales Recording (Admin)
+- Record sales transactions
+- Select products with quantities
+- Choose payment methods
+- Generate receipts and print
+- Track sales history
 
 #### Sales Reporting
 - View all sales transactions with detailed breakdown
-- Filter by date range, staff, payment method
+- Filter by date range and payment method
 - Daily, Weekly, Monthly report views
 - Summary statistics per period
 - Profit margin calculations
 - Visual charts for sales trends
 - Exportable transaction lists
-
-### 4. Staff Features (Complete)
-
-#### Dashboard
-- Today's sales count
-- Daily revenue tracking
-- Total available products
-- Low-stock product count
-- Recent sales quick view
 
 #### Sales Recording
 - Interactive product selection with search
@@ -84,24 +76,17 @@ A fully functional, production-ready inventory and sales management system for r
 - Stock auto-reduction after sale
 - Instant receipt generation
 
-#### Sales History
-- View all personal sales transactions
-- Transaction filtering
-- Receipt printing
-- Sales details viewing
-
 #### Receipts
 - Professional receipt format
 - Itemized sales details
 - Payment information
-- Staff attribution
 - Printable receipt template
 
 ### 5. Security Features
 - ✓ CSRF protection on all forms
 - ✓ Password hashing (bcrypt)
 - ✓ Session management
-- ✓ Role-based access control middleware
+- ✓ Admin-only access control middleware
 - ✓ SQL injection prevention (Eloquent ORM)
 - ✓ Account status validation
 - ✓ Protected API routes
@@ -136,15 +121,12 @@ app/
 │   │   ├── AdminDashboardController.php
 │   │   ├── CategoryController.php
 │   │   ├── ProductController.php
-│   │   ├── StaffController.php
 │   │   ├── ReportController.php
-│   │   ├── StaffDashboardController.php
 │   │   ├── SalesRecordingController.php
 │   │   └── Auth/
 │   │       └── AuthenticatedSessionController.php
 │   └── Middleware/
-│       ├── AdminMiddleware.php
-│       └── StaffMiddleware.php
+│       └── AdminMiddleware.php
 ├── Models/
 │   ├── User.php
 │   ├── Category.php
@@ -182,13 +164,11 @@ resources/views/
 │   │   ├── index.blade.php
 │   │   ├── create.blade.php
 │   │   └── edit.blade.php
-│   └── reports/
-│       ├── sales.blade.php
-│       ├── daily.blade.php
-│       ├── weekly.blade.php
-│       └── monthly.blade.php
-├── staff/
-│   ├── dashboard.blade.php
+│   ├── reports/
+│   │   ├── sales.blade.php
+│   │   ├── daily.blade.php
+│   │   ├── weekly.blade.php
+│   │   └── monthly.blade.php
 │   └── sales/
 │       ├── create.blade.php
 │       ├── receipt.blade.php
@@ -209,7 +189,7 @@ bootstrap/
 ## Database Schema Overview
 
 ### Users Table
-- id, name, email, password, role (admin/staff), is_active, timestamps
+- id, name, email, password, role (admin), is_active, timestamps
 
 ### Categories Table
 - id, name, slug, description, timestamps
@@ -233,16 +213,6 @@ bootstrap/
    - Email: admin@example.com
    - Password: password
    - Role: Full system access
-
-2. **Staff Account 1**
-   - Email: staff@example.com
-   - Password: password
-   - Role: Sales recording only
-
-3. **Staff Account 2**
-   - Email: staff2@example.com
-   - Password: password
-   - Role: Sales recording only
 
 ### Sample Products (10 Products Across 5 Categories)
 - Laptops: Dell XPS 13, MacBook Air M2, Lenovo ThinkPad E15
@@ -287,18 +257,17 @@ See `QUICKSTART.md` for detailed step-by-step guide.
 - ✓ Cost of goods tracking
 - ✓ Profit margin analysis
 - ✓ Revenue aggregation by period
-- ✓ Staff performance tracking
+- ✓ Real-time inventory updates
 
 ### Reporting & Analytics
 - ✓ Customizable date range filters
 - ✓ Multi-parameter filtering
 - ✓ Visual trend analysis with charts
 - ✓ Daily, weekly, monthly summaries
-- ✓ Staff and product performance metrics
 
 ### User Management
-- ✓ Staff account creation
-- ✓ Role-based access control
+- ✓ Admin account management
+- ✓ Session-based authentication
 - ✓ Account activation/deactivation
 - ✓ Secure password management
 
@@ -359,13 +328,14 @@ The system is designed to be easily extended with:
 7. Test payment methods → all should work
 
 ### End-to-End Testing
-1. Admin creates product
-2. Staff records a sale
-3. Admin views the sale in reports
-4. Verify stock was updated
-5. Verify profit was calculated
-6. Check that payment method is recorded
-7. Verify receipt can be printed
+1. Admin logs in
+2. Admin creates product
+3. Admin records a sale
+4. Admin views the sale in reports
+5. Verify stock was updated
+6. Verify profit was calculated
+7. Check that payment method is recorded
+8. Verify receipt can be printed
 
 ---
 

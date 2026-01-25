@@ -15,11 +15,18 @@ class SalesRecordingController extends Controller
             ->with('category')
             ->get();
 
-        return view('staff.sales.create', compact('products'));
+        return view('admin.sales.create', compact('products'));
     }
 
     public function store(Request $request)
     {
+        // Decode items if it's a JSON string
+        $items = $request->input('items');
+        if (is_string($items)) {
+            $items = json_decode($items, true);
+            $request->merge(['items' => $items]);
+        }
+
         $validated = $request->validate([
             'items' => 'required|array|min:1',
             'items.*.product_id' => 'required|exists:products,id',
@@ -77,43 +84,30 @@ class SalesRecordingController extends Controller
             $product->decrement('quantity_in_stock', $item['quantity']);
         }
 
-        $routeName = auth()->user()->isAdmin() ? 'admin.sales.receipt' : 'staff.sales.receipt';
-
-        return redirect()->route($routeName, $sale->id)
-            ->with('success', 'Sale recorded successfully.');
+        return redirect()->route('admin.sales.receipt', $sale->id)
+            ->with('success', 'Sale recorded successfully');
     }
 
     public function receipt(Sale $sale)
     {
-        // Ensure the sale belongs to the current user or is admin
-        if ($sale->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
-            abort(403);
-        }
-
         $sale->load('items.product', 'user');
 
-        return view('staff.sales.receipt', compact('sale'));
+        return view('admin.sales.receipt', compact('sale'));
     }
 
     public function print(Sale $sale)
     {
-        // Ensure the sale belongs to the current user or is admin
-        if ($sale->user_id !== auth()->id() && !auth()->user()->isAdmin()) {
-            abort(403);
-        }
-
         $sale->load('items.product', 'user');
 
-        return view('staff.sales.print', compact('sale'));
+        return view('admin.sales.print', compact('sale'));
     }
 
     public function history()
     {
-        $sales = Sale::where('user_id', auth()->id())
-            ->with('items.product')
+        $sales = Sale::with('items.product')
             ->latest()
             ->paginate(15);
 
-        return view('staff.sales.history', compact('sales'));
+        return view('admin.sales.history', compact('sales'));
     }
 }

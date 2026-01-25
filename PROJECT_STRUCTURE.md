@@ -10,17 +10,14 @@ control_c_technologies/
 │   │   │   ├── AdminDashboardController.php      [Dashboard metrics & overview]
 │   │   │   ├── CategoryController.php            [Category CRUD operations]
 │   │   │   ├── ProductController.php             [Product CRUD & search]
-│   │   │   ├── StaffController.php               [Staff account management]
 │   │   │   ├── ReportController.php              [Sales reporting & filtering]
-│   │   │   ├── StaffDashboardController.php      [Staff overview dashboard]
 │   │   │   ├── SalesRecordingController.php      [Sales transaction recording]
 │   │   │   └── Auth/
 │   │   │       └── AuthenticatedSessionController.php [Login/Logout handler]
 │   │   └── Middleware/
-│   │       ├── AdminMiddleware.php               [Admin access protection]
-│   │       └── StaffMiddleware.php               [Staff access protection]
+│   │       └── AdminMiddleware.php               [Admin access protection]
 │   └── Models/
-│       ├── User.php                              [User model with roles]
+│       ├── User.php                              [User model with admin role]
 │       ├── Category.php                          [Product category model]
 │       ├── Product.php                           [Product inventory model]
 │       ├── Sale.php                              [Sales transaction model]
@@ -53,22 +50,16 @@ control_c_technologies/
 │   │   │   │   ├── create.blade.php             [Add product]
 │   │   │   │   ├── edit.blade.php               [Edit product]
 │   │   │   │   └── show.blade.php               [Product details]
-│   │   │   ├── staff/
-│   │   │   │   ├── index.blade.php              [Staff list]
-│   │   │   │   ├── create.blade.php             [Create staff account]
-│   │   │   │   └── edit.blade.php               [Edit staff account]
 │   │   │   └── reports/
 │   │   │       ├── sales.blade.php              [Sales report with filters]
 │   │   │       ├── daily.blade.php              [Daily report]
 │   │   │       ├── weekly.blade.php             [Weekly report with chart]
 │   │   │       └── monthly.blade.php            [Monthly report with chart]
-│   │   ├── staff/
-│   │   │   ├── dashboard.blade.php              [Staff dashboard]
-│   │   │   └── sales/
-│   │   │       ├── create.blade.php             [Sales recording interface]
-│   │   │       ├── receipt.blade.php            [Receipt display]
-│   │   │       ├── print.blade.php              [Printable receipt]
-│   │   │       └── history.blade.php            [Sales history]
+│   │   ├── sales/
+│   │   │   ├── create.blade.php                 [Sales recording interface]
+│   │   │   ├── receipt.blade.php                [Receipt display]
+│   │   │   ├── print.blade.php                  [Printable receipt]
+│   │   │   └── history.blade.php                [Sales history]
 │   │   └── auth/
 │   │       └── login.blade.php                  [Login form]
 │   ├── css/
@@ -161,14 +152,6 @@ control_c_technologies/
 #### StaffController.php
 **Purpose**: Manage staff accounts
 **Key Methods**:
-- `index()` - List staff members
-- `create()` - Show create form
-- `store()` - Create new staff account
-- `edit()` - Show edit form
-- `update()` - Update staff info
-- `toggleActive()` - Activate/deactivate account
-- `destroy()` - Delete staff account
-
 #### ReportController.php
 **Purpose**: Generate sales reports and analytics
 **Key Methods**:
@@ -179,11 +162,6 @@ control_c_technologies/
 - `monthly()` - Monthly report with daily breakdown
 - `generateSummary()` - Calculate report metrics
 
-#### StaffDashboardController.php
-**Purpose**: Display staff dashboard
-**Key Methods**:
-- `index()` - Returns staff dashboard with personal metrics
-
 #### SalesRecordingController.php
 **Purpose**: Handle sales transactions
 **Key Methods**:
@@ -191,7 +169,7 @@ control_c_technologies/
 - `store()` - Save new sale and update stock
 - `receipt()` - Show sale receipt
 - `print()` - Show printable receipt
-- `history()` - Show staff's sales history
+- `history()` - Show sales history
 
 #### AuthenticatedSessionController.php
 **Purpose**: Handle authentication
@@ -206,7 +184,6 @@ control_c_technologies/
 - `hasMany('Sale')` - User to sales
 **Methods**:
 - `isAdmin()` - Check if admin
-- `isStaff()` - Check if staff
 - `isActive()` - Check if account active
 **Fields**: id, name, email, password, role, is_active, timestamps
 
@@ -249,14 +226,6 @@ control_c_technologies/
 **Checks**:
 - User is authenticated
 - User has admin role
-- Account is active
-**Redirects to**: Home with error message
-
-#### StaffMiddleware.php
-**Purpose**: Protect staff routes
-**Checks**:
-- User is authenticated
-- User has staff role
 - Account is active
 **Redirects to**: Home with error message
 

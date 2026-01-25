@@ -23,6 +23,7 @@ class User extends Authenticatable
         'password',
         'role',
         'is_active',
+        'profile_picture',
     ];
 
     /**
@@ -56,11 +57,6 @@ class User extends Authenticatable
     public function isAdmin()
     {
         return $this->role === 'admin';
-    }
-
-    public function isStaff()
-    {
-        return $this->role === 'staff';
     }
 
     public function isActive()

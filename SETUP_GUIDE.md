@@ -10,7 +10,7 @@ A comprehensive web-based inventory and sales management system built with Larav
 - **Low-Stock Alerts**: Automatic notifications when products fall below thresholds
 - **Multi-Category Support**: Organize products into 5 predefined categories
 - **Sales Reports**: Daily, weekly, and monthly sales analytics
-- **Role-Based Access Control**: Separate admin and staff functionalities
+- **Role-Based Access Control**: Admin-only access with authentication
 
 ### Admin Capabilities
 - Product Management
@@ -21,17 +21,17 @@ A comprehensive web-based inventory and sales management system built with Larav
   - Store serial numbers and supplier information
 
 - Staff Management
-  - Create staff accounts
-  - Manage staff access (activate/deactivate)
-  - Update staff information
-  - Track sales by individual staff members
+  - ~~Create staff accounts~~
+  - ~~Manage staff access (activate/deactivate)~~
+  - ~~Update staff information~~
+  - ~~Track sales by individual staff members~~
 
 - Reporting & Analytics
   - View all sales records with filters
   - Generate daily, weekly, and monthly reports
   - Track total revenue and profit
   - View profit margins and trends
-  - Analyze sales by staff, date, and payment method
+  - Analyze sales by date and payment method
 
 - Dashboard
   - Real-time key metrics
@@ -40,7 +40,7 @@ A comprehensive web-based inventory and sales management system built with Larav
   - Recent sales overview
   - Sales trend visualization
 
-### Staff Capabilities
+### Admin Capabilities (Extended)
 - Sales Recording
   - Quick product search and selection
   - Easy quantity adjustment
@@ -115,14 +115,10 @@ Visit `http://localhost:8000` in your browser.
 - **Email**: admin@example.com
 - **Password**: password
 
-### Staff Accounts
-- **Email**: staff@example.com or staff2@example.com
-- **Password**: password
-
 ## Database Schema
 
 ### Tables
-- **users**: Admin and staff accounts with role-based access
+- **users**: Admin accounts with authentication
 - **categories**: Product categories
 - **products**: Product inventory with pricing and stock information
 - **sales**: Sales transactions with payment method tracking
@@ -134,13 +130,11 @@ Visit `http://localhost:8000` in your browser.
 - `AdminDashboardController`: Admin dashboard with key metrics
 - `CategoryController`: Category management (CRUD)
 - `ProductController`: Product management and search
-- `StaffController`: Staff account management
 - `ReportController`: Sales reporting and filtering
-- `StaffDashboardController`: Staff dashboard
 - `SalesRecordingController`: Sales transaction recording
 
 ### Models
-- `User`: User with roles (admin/staff)
+- `User`: User with admin role
 - `Category`: Product categorization
 - `Product`: Product inventory
 - `Sale`: Sales transactions
@@ -148,8 +142,7 @@ Visit `http://localhost:8000` in your browser.
 
 ### Views
 Organized into separate directories:
-- `admin/`: Admin panel views (dashboard, products, categories, staff, reports)
-- `staff/`: Staff views (dashboard, sales recording, receipts)
+- `admin/`: Admin panel views (dashboard, products, categories, reports)
 - `auth/`: Authentication views
 - `layouts/`: Shared layout templates
 
@@ -177,7 +170,7 @@ Organized into separate directories:
 
 ### Reporting
 - Customizable date range filtering
-- Filter by payment method or staff
+- Filter by payment method
 - Export-ready sales summaries
 - Visual sales trends with charts
 - Daily, weekly, and monthly breakdowns
@@ -203,28 +196,22 @@ resources/
 │   │   ├── dashboard.blade.php
 │   │   ├── categories/
 │   │   ├── products/
-│   │   ├── staff/
 │   │   └── reports/
-│   ├── staff/
-│   │   ├── dashboard.blade.php
-│   │   └── sales/
 │   ├── auth/
 │   └── layouts/
-│       └── app.blade.php
+│       ├── app.blade.php
+│       └── guest.blade.php
 app/
 ├── Http/
 │   ├── Controllers/
 │   │   ├── AdminDashboardController.php
 │   │   ├── CategoryController.php
 │   │   ├── ProductController.php
-│   │   ├── StaffController.php
 │   │   ├── ReportController.php
-│   │   ├── StaffDashboardController.php
 │   │   ├── SalesRecordingController.php
 │   │   └── Auth/
 │   └── Middleware/
-│       ├── AdminMiddleware.php
-│       └── StaffMiddleware.php
+│       └── AdminMiddleware.php
 ├── Models/
 │   ├── User.php
 │   ├── Category.php

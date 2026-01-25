@@ -39,17 +39,9 @@
 **Solution:**
 - Ensure you're using exact demo credentials:
   - Email: admin@example.com
-  - Email: staff@example.com
-  - Password: password (for all)
+  - Password: password
 - Check Caps Lock is off
 - Clear browser cache and try again
-
-#### Issue: "Your account has been deactivated"
-**Solution:**
-- Log in as admin
-- Go to Staff management
-- Toggle the staff account to "active"
-- Have the staff member log in again
 
 #### Issue: Stuck on login page
 **Solution:**
@@ -185,7 +177,7 @@ php artisan serve
 3. If still issues, clear browser cookies
 4. Check user role matches expected page:
    - Admin pages: user must be admin
-   - Staff pages: user must be staff
+   - Admin pages: user must be admin
 
 ---
 
