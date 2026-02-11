@@ -178,7 +178,7 @@ body {
     color: #dc2626;
 }
 
-/* CONTENT CARD */
+/* CONTENT AREA */
 .content-area {
     background: #ffffffff;
     border-radius: 20px;
@@ -186,7 +186,14 @@ body {
     padding: 30px;
     overflow-y: auto;
     box-shadow: inset 0 2px 4px rgba(0,0,0,0.01);
+    display: flex;
+    flex-direction: column;
 }
+
+.content-area > .row.justify-content-center {
+    margin: auto 0;
+}
+
 
 /* Scrollbar styling */
 .content-area::-webkit-scrollbar { width: 6px; }
@@ -194,6 +201,108 @@ body {
 .content-area::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
 .content-area::-webkit-scrollbar-thumb:hover { background: #cbd5e1; }
 
+/* Responsive Sidebar */
+@media (max-width: 768px) {
+    .sidebar {
+        position: fixed;
+        left: -280px;
+        top: 15px;
+        bottom: 15px;
+        height: auto; /* Uses padding from container */
+        z-index: 1050;
+        transition: left 0.3s ease-in-out;
+        box-shadow: 5px 0 15px rgba(0,0,0,0.1);
+    }
+    
+    .sidebar.active {
+        left: 15px;
+    }
+    
+    .sidebar-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.5);
+        z-index: 1040;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.3s ease-in-out;
+        backdrop-filter: blur(2px);
+    }
+    
+    .sidebar-overlay.active {
+        opacity: 1;
+        visibility: visible;
+    }
+    
+    .app-container {
+        padding: 10px;
+    }
+    
+    .topbar {
+        border-radius: 12px;
+    }
+    
+    .content-area {
+        border-radius: 12px;
+    }
+}
+
+/* PRINT OPTIMIZATION */
+@media print {
+    .sidebar, 
+    .topbar, 
+    .sidebar-overlay, 
+    .btn-logout-new,
+    .no-print,
+    .sidebar-footer {
+        display: none !important;
+    }
+
+    body {
+        background-color: #fff !important;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    .app-container {
+        display: block !important;
+        padding: 0 !important;
+        gap: 0 !important;
+        height: auto !important;
+    }
+
+    .main-wrapper {
+        display: block !important;
+        gap: 0 !important;
+    }
+
+    .content-area {
+        background: #fff !important;
+        padding: 0 !important;
+        box-shadow: none !important;
+        border-radius: 0 !important;
+        overflow: visible !important;
+        display: block !important;
+    }
+
+    .card {
+        border: 1px solid #e2e8f0 !important;
+        box-shadow: none !important;
+        break-inside: avoid;
+    }
+
+    .page-title-new {
+        margin-top: 0 !important;
+        margin-bottom: 20px !important;
+    }
+
+    .table {
+        width: 100% !important;
+    }
+}
 </style>
 </head>
 <body>
@@ -211,9 +320,7 @@ body {
             <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}">
                 <i class="bi bi-grid-fill"></i> Overview
             </a>
-            <a href="{{ route('admin.profile.edit') }}" class="nav-link {{ request()->routeIs('admin.profile.edit') ? 'active' : '' }}">
-                <i class="bi bi-person-fill-gear"></i> My Profile
-            </a>
+
 
             <div class="nav-section-title" style="margin-top: 20px;">Inventory</div>
             <a href="{{ route('admin.categories.index') }}" class="nav-link {{ request()->routeIs('admin.categories.*') ? 'active' : '' }}">
@@ -242,12 +349,11 @@ body {
 
         <div class="sidebar-footer p-3 mt-auto">
             @auth
-                <form method="POST" action="{{ route('logout') }}" id="logout-form">
-                    @csrf
-                    <button type="submit" class="logout-link w-100">
-                        <i class="bi bi-box-arrow-right"></i> Logout
-                    </button>
-                </form>
+            @auth
+                <a href="{{ route('admin.profile.edit') }}" class="logout-link w-100" style="background-color: #eff6ff; color: #3b82f6;">
+                    <i class="bi bi-gear-fill"></i> Settings
+                </a>
+            @endauth
             @endauth
         </div>
     </aside>
@@ -255,6 +361,9 @@ body {
     {{-- MAIN CONTENT AREA --}}
     <main class="main-wrapper">
         <header class="topbar">
+            <button class="btn btn-link d-md-none me-2 text-dark p-0" id="sidebar-toggle">
+                <i class="bi bi-list fs-4"></i>
+            </button>
             <div class="topbar-title">Inventory & Sales Management</div>
             <div class="user-info">
                 @auth
@@ -280,7 +389,25 @@ body {
 <!-- Modal Alerts -->
 @include('components.modal-alert')
 
+<div class="sidebar-overlay" id="sidebar-overlay"></div>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    const sidebar = document.querySelector('.sidebar');
+    const sidebarToggle = document.getElementById('sidebar-toggle');
+    const sidebarOverlay = document.getElementById('sidebar-overlay');
+
+    function toggleSidebar() {
+        sidebar.classList.toggle('active');
+        sidebarOverlay.classList.toggle('active');
+    }
+
+    sidebarToggle.addEventListener('click', toggleSidebar);
+    sidebarOverlay.addEventListener('click', toggleSidebar);
+</script>
+
+@yield('extra-js')
 
 </body>
 </html>

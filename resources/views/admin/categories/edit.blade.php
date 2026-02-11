@@ -3,73 +3,70 @@
 @section('title', 'Edit Category')
 
 @section('content')
-<div class="mb-4">
-    <h1 class="page-title-new mb-1">
-        <i class="bi bi-tag-fill text-primary"></i> Edit Category
-    </h1>
-    <!-- <nav aria-label="breadcrumb">
-        <ol class="breadcrumb mb-0" style="font-size: 11px;">
-            <li class="breadcrumb-item"><a href="{{ route('admin.dashboard') }}" class="text-muted text-decoration-none">Dashboard</a></li>
-            <li class="breadcrumb-item"><a href="{{ route('admin.categories.index') }}" class="text-muted text-decoration-none">Categories</a></li>
-            <li class="breadcrumb-item active text-primary fw-bold" aria-current="page">Edit Category</li>
-        </ol>
-    </nav> -->
-</div>
+<div class="row justify-content-center">
+    <div class="col-xl-6 col-lg-8">
+        <div class="mb-4">
+            <h1 class="page-title-new mb-1">
+                <i class="bi bi-tag-fill text-primary"></i> Edit Category
+            </h1>
+            <p class="text-muted small">Update the category details below</p>
+        </div>
 
-<div class="card recent-sales-card border-0 shadow-sm mb-4" style="max-width: 650px;">
-    <div class="card-header bg-white border-bottom py-3">
-        <h6 class="mb-1" style="font-weight: 700; color: #1e293b;">Category Information</h6>
-        <p class="text-muted small mb-0">Update the category details below</p>
-    </div>
-    <div class="card-body p-4">
-        <form method="POST" action="{{ route('admin.categories.update', $category) }}">
-            @csrf
-            @method('PUT')
-            
-            <div class="mb-4">
-                <label for="name" class="form-label-new">Category Name <span class="text-danger">*</span></label>
-                <input type="text" class="form-control @error('name') is-invalid @enderror" 
-                       id="name" name="name" value="{{ old('name', $category->name) }}" 
-                       placeholder="Enter category name" required>
-                <div class="form-text-small mt-1">Enter a unique name for this category</div>
-                @error('name')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
+        <div class="card recent-sales-card border-0 shadow-sm mb-4">
+            <div class="card-header bg-white border-bottom py-3">
+                <h6 class="mb-0" style="font-weight: 700; color: #1e293b;">Category Information</h6>
             </div>
+            <div class="card-body p-4 p-lg-5">
+                <form method="POST" action="{{ route('admin.categories.update', $category) }}">
+                    @csrf
+                    @method('PUT')
+                    
+                    <div class="mb-4">
+                        <label for="name" class="form-label-new">Category Name <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control @error('name') is-invalid @enderror" 
+                               id="name" name="name" value="{{ old('name', $category->name) }}" 
+                               placeholder="Enter category name" required>
+                        <div class="form-text-small mt-1">Enter a unique name for this category</div>
+                        @error('name')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
 
-            <div class="mb-4">
-                <label for="description" class="form-label-new">Description</label>
-                <textarea class="form-control @error('description') is-invalid @enderror" 
-                          id="description" name="description" rows="4" 
-                          placeholder="Enter category description (optional)">{{ old('description', $category->description) }}</textarea>
-                <div class="form-text-small mt-1">Provide a brief description of what this category includes</div>
-                @error('description')
-                    <div class="invalid-feedback">{{ $message }}</div>
-                @enderror
+                    <div class="mb-4">
+                        <label for="description" class="form-label-new">Description</label>
+                        <textarea class="form-control @error('description') is-invalid @enderror" 
+                                  id="description" name="description" rows="4" 
+                                  placeholder="Enter category description (optional)">{{ old('description', $category->description) }}</textarea>
+                        <div class="form-text-small mt-1">Provide a brief description of what this category includes</div>
+                        @error('description')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4 pt-3 border-top">
+                        <button type="submit" class="btn btn-save-new px-4">
+                            <i class="bi bi-check-lg"></i> Update Category
+                        </button>
+                        <a href="{{ route('admin.categories.index') }}" class="btn btn-cancel-new px-4">
+                            <i class="bi bi-x-lg"></i> Cancel
+                        </a>
+                    </div>
+                </form>
             </div>
+        </div>
 
-            <div class="d-flex gap-2">
-                <button type="submit" class="btn btn-save-new px-3">
-                    <i class="bi bi-check-lg"></i> Update Category
-                </button>
-                <a href="{{ route('admin.categories.index') }}" class="btn btn-cancel-new px-3">
-                    <i class="bi bi-x-lg"></i> Cancel
-                </a>
+        <div class="tip-box-blue mt-4">
+            <div class="d-flex gap-2 align-items-center mb-2">
+                <i class="bi bi-info-circle-fill text-primary"></i>
+                <h6 class="mb-0" style="font-weight: 700; color: #1e293b; font-size: 14px;">Category Guidelines</h6>
             </div>
-        </form>
+            <ul class="mb-0 text-muted" style="font-size: 12px; list-style-type: disc; padding-left: 1rem;">
+                <li>Category names should be unique and descriptive</li>
+                <li>Use clear, concise descriptions to help users understand the category</li>
+                <li>Changes will be reflected immediately across the system</li>
+            </ul>
+        </div>
     </div>
-</div>
-
-<div class="tip-box-blue" style="max-width: 650px;">
-    <div class="d-flex gap-2 align-items-center mb-2">
-        <i class="bi bi-info-circle-fill text-primary"></i>
-        <h6 class="mb-0" style="font-weight: 700; color: #1e293b; font-size: 14px;">Category Guidelines</h6>
-    </div>
-    <ul class="mb-0 text-muted" style="font-size: 12px; list-style-type: disc; padding-left: 1rem;">
-        <li>Category names should be unique and descriptive</li>
-        <li>Use clear, concise descriptions to help users understand the category</li>
-        <li>Changes will be reflected immediately across the system</li>
-    </ul>
 </div>
 
 <style>

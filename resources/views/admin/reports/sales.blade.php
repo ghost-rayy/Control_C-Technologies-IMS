@@ -3,158 +3,177 @@
 @section('title', 'Sales Reports')
 
 @section('content')
-<div class="mb-4">
-    <h1 class="page-title-new mb-1">
-        <i class="bi bi-graph-up-arrow text-primary"></i> Sales Reports
-    </h1>
-    <p class="text-muted small">Filter and analyze your sales performance data</p>
-</div>
+<div class="row justify-content-center">
+    <div class="col-xl-11">
+        <div class="mb-4">
+            <h1 class="page-title-new mb-1">
+                <i class="bi bi-graph-up-arrow text-primary"></i> Sales Reports
+            </h1>
+            <p class="text-muted small">Filter and analyze your sales performance data</p>
+        </div>
 
-<div class="card recent-sales-card border-0 shadow-sm mb-4">
-    <div class="card-header bg-white border-bottom py-3">
-        <h6 class="mb-0" style="font-weight: 700; color: #1e293b;">Filter Reports</h6>
-    </div>
-    <div class="card-body p-4">
-        <form method="POST" action="{{ route('admin.reports.filter') }}" class="row g-3">
-            @csrf
+        <div class="card recent-sales-card border-0 shadow-sm mb-4 no-print">
+            <div class="card-header bg-white border-bottom py-3">
+                <h6 class="mb-0" style="font-weight: 700; color: #1e293b;">Filter Reports</h6>
+            </div>
+            <div class="card-body p-4">
+                <form method="GET" action="{{ route('admin.reports.filter') }}" class="row g-3">
+                    <div class="col-md-3">
+                        <label for="start_date" class="form-label-new">Start Date</label>
+                        <input type="date" class="form-control @error('start_date') is-invalid @enderror" id="start_date" name="start_date" value="{{ request('start_date', $startDate->format('Y-m-d')) }}">
+                        @error('start_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
 
+                    <div class="col-md-3">
+                        <label for="end_date" class="form-label-new">End Date</label>
+                        <input type="date" class="form-control @error('end_date') is-invalid @enderror" id="end_date" name="end_date" value="{{ request('end_date', $endDate->format('Y-m-d')) }}">
+                        @error('end_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="payment_method" class="form-label-new">Payment Method</label>
+                        <select class="form-select @error('payment_method') is-invalid @enderror" id="payment_method" name="payment_method">
+                            <option value="">All Methods</option>
+                            <option value="Cash" {{ request('payment_method') == 'Cash' ? 'selected' : '' }}>Cash</option>
+                            <option value="Mobile Money" {{ request('payment_method') == 'Mobile Money' ? 'selected' : '' }}>Mobile Money</option>
+                            <option value="Card" {{ request('payment_method') == 'Card' ? 'selected' : '' }}>Card</option>
+                        </select>
+                        @error('payment_method') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="col-md-3 d-flex align-items-end gap-2">
+                        <button type="submit" class="btn btn-save-new flex-grow-1">
+                            <i class="bi bi-search"></i> Filter
+                        </button>
+                        <a href="{{ route('admin.reports.index') }}" class="btn btn-outline-secondary rounded-3">
+                            <i class="bi bi-arrow-counterclockwise"></i>
+                        </a>
+                    </div>
+                </form>
+                
+                <hr class="my-4" style="border-top: 1px dashed #e2e8f0;">
+                
+                <div class="d-flex flex-wrap gap-2 justify-content-end no-print">
+                    <a href="{{ route('admin.reports.export', request()->all()) }}" class="btn btn-outline-success border-2 fw-700 rounded-3 px-3">
+                        <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i> Export CSV
+                    </a>
+                    <a href="{{ route('admin.reports.export', array_merge(request()->all(), ['format' => 'excel'])) }}" class="btn btn-outline-primary border-2 fw-700 rounded-3 px-3">
+                        <i class="bi bi-file-earmark-excel-fill me-1"></i> Export Excel
+                    </a>
+                    <button onclick="window.print()" class="btn btn-outline-dark border-2 fw-700 rounded-3 px-3">
+                        <i class="bi bi-printer-fill me-1"></i> Print Report
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div class="row g-3 mb-4">
             <div class="col-md-3">
-                <label for="start_date" class="form-label-new">Start Date</label>
-                <input type="date" class="form-control @error('start_date') is-invalid @enderror" id="start_date" name="start_date" value="{{ $startDate->format('Y-m-d') }}">
-                @error('start_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                <div class="metric-card-new h-100">
+                    <div class="metric-info">
+                        <span class="metric-label-new">Total Sales</span>
+                        <span class="metric-value-new">{{ $summary['total_sales'] }}</span>
+                    </div>
+                    <div class="metric-icon-box bg-light-blue">
+                        <i class="bi bi-cart-check-fill"></i>
+                    </div>
+                </div>
             </div>
-
             <div class="col-md-3">
-                <label for="end_date" class="form-label-new">End Date</label>
-                <input type="date" class="form-control @error('end_date') is-invalid @enderror" id="end_date" name="end_date" value="{{ $endDate->format('Y-m-d') }}">
-                @error('end_date') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                <div class="metric-card-new h-100">
+                    <div class="metric-info">
+                        <span class="metric-label-new">Total Revenue</span>
+                        <span class="metric-value-new text-success">₵{{ number_format($summary['total_revenue'], 2) }}</span>
+                    </div>
+                    <div class="metric-icon-box bg-light-green">
+                        <i class="bi bi-currency-dollar"></i>
+                    </div>
+                </div>
             </div>
-
             <div class="col-md-3">
-                <label for="payment_method" class="form-label-new">Payment Method</label>
-                <select class="form-select @error('payment_method') is-invalid @enderror" id="payment_method" name="payment_method">
-                    <option value="">All Methods</option>
-                    <option value="Cash">Cash</option>
-                    <option value="Mobile Money">Mobile Money</option>
-                    <option value="Card">Card</option>
-                </select>
-                @error('payment_method') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                <div class="metric-card-new h-100">
+                    <div class="metric-info">
+                        <span class="metric-label-new">Average Sale</span>
+                        <span class="metric-value-new">₵{{ number_format($summary['average_sale'], 1) }}</span>
+                    </div>
+                    <div class="metric-icon-box bg-light-purple">
+                        <i class="bi bi-calculator-fill"></i>
+                    </div>
+                </div>
             </div>
+            <div class="col-md-3">
+                <div class="metric-card-new h-100">
+                    <div class="metric-info">
+                        <span class="metric-label-new">Total Profit</span>
+                        <span class="metric-value-new text-success">₵{{ number_format($summary['total_profit'], 2) }}</span>
+                    </div>
+                    <div class="metric-icon-box bg-light-green">
+                        <i class="bi bi-graph-up-arrow"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            <div class="col-md-3 d-flex align-items-end">
-                <button type="submit" class="btn btn-save-new w-100">
-                    <i class="bi bi-search"></i> Filter Records
-                </button>
+        <div class="card recent-sales-card border-0 shadow-sm">
+            <div class="card-header bg-white border-bottom py-3">
+                <h6 class="mb-0" style="font-weight: 700; color: #1e293b;">Sales Records</h6>
             </div>
-        </form>
-    </div>
-</div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table products-table mb-0">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Staff</th>
+                                <th>Items</th>
+                                <th>Revenue</th>
+                                <th>Profit</th>
+                                <th>Payment</th>
+                                <th class="text-end">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($sales as $sale)
+                                <tr>
+                                    <td class="small text-muted">{{ $sale->created_at->format('d M Y h:i A') }}</td>
+                                    <td class="fw-600 color-navy">{{ $sale->user->name }}</td>
+                                    <td>{{ $sale->items->count() }}</td>
+                                    <td class="fw-700 color-navy">₵{{ number_format($sale->total_amount, 2) }}</td>
+                                    <td>
+                                        <span class="text-success fw-600">₵{{ number_format($sale->getProfit(), 2) }}</span>
+                                    </td>
+                                    <td>
+                                        @php
+                                            $badgeClass = match($sale->payment_method) {
+                                                'Cash' => 'badge-cash',
+                                                'Mobile Money' => 'badge-momo',
+                                                'Card' => 'badge-card',
+                                                default => 'bg-info',
+                                            };
+                                        @endphp
+                                        <span class="badge-payment {{ $badgeClass }}">{{ $sale->payment_method }}</span>
+                                    </td>
+                                    <td class="text-end">
+                                        <a href="{{ route('admin.sales.receipt', $sale->id) }}" class="btn-action-view" title="View Details">
+                                            <i class="bi bi-eye-fill"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="7" class="text-center py-5 text-muted small">No sales records found for the selected period.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-<div class="row g-3 mb-4">
-    <div class="col-md-3">
-        <div class="metric-card-new h-100">
-            <div class="metric-info">
-                <span class="metric-label-new">Total Sales</span>
-                <span class="metric-value-new">{{ $summary['total_sales'] }}</span>
-            </div>
-            <div class="metric-icon-box bg-light-blue">
-                <i class="bi bi-cart-check-fill"></i>
-            </div>
+        <div class="mt-4">
+            {{ $sales->links() }}
         </div>
     </div>
-    <div class="col-md-3">
-        <div class="metric-card-new h-100">
-            <div class="metric-info">
-                <span class="metric-label-new">Total Revenue</span>
-                <span class="metric-value-new text-success">₵{{ number_format($summary['total_revenue'], 2) }}</span>
-            </div>
-            <div class="metric-icon-box bg-light-green">
-                <i class="bi bi-currency-dollar"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="metric-card-new h-100">
-            <div class="metric-info">
-                <span class="metric-label-new">Average Sale</span>
-                <span class="metric-value-new">₵{{ number_format($summary['average_sale'], 1) }}</span>
-            </div>
-            <div class="metric-icon-box bg-light-purple">
-                <i class="bi bi-calculator-fill"></i>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="metric-card-new h-100">
-            <div class="metric-info">
-                <span class="metric-label-new">Total Profit</span>
-                <span class="metric-value-new text-success">₵{{ number_format($summary['total_profit'], 2) }}</span>
-            </div>
-            <div class="metric-icon-box bg-light-green">
-                <i class="bi bi-graph-up-arrow"></i>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="card recent-sales-card border-0 shadow-sm">
-    <div class="card-header bg-white border-bottom py-3">
-        <h6 class="mb-0" style="font-weight: 700; color: #1e293b;">Sales Records</h6>
-    </div>
-    <div class="card-body p-0">
-        <div class="table-responsive">
-            <table class="table products-table mb-0">
-                <thead>
-                    <tr>
-                        <th>Date & Time</th>
-                        <th>Staff</th>
-                        <th>Items</th>
-                        <th>Revenue</th>
-                        <th>Profit</th>
-                        <th>Payment</th>
-                        <th class="text-end">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @forelse($sales as $sale)
-                        <tr>
-                            <td class="small text-muted">{{ $sale->created_at->format('d M Y h:i A') }}</td>
-                            <td class="fw-600 color-navy">{{ $sale->user->name }}</td>
-                            <td>{{ $sale->items->count() }}</td>
-                            <td class="fw-700 color-navy">₵{{ number_format($sale->total_amount, 2) }}</td>
-                            <td>
-                                <span class="text-success fw-600">₵{{ number_format($sale->getProfit(), 2) }}</span>
-                            </td>
-                            <td>
-                                @php
-                                    $badgeClass = match($sale->payment_method) {
-                                        'Cash' => 'badge-cash',
-                                        'Mobile Money' => 'badge-momo',
-                                        'Card' => 'badge-card',
-                                        default => 'bg-info',
-                                    };
-                                @endphp
-                                <span class="badge-payment {{ $badgeClass }}">{{ $sale->payment_method }}</span>
-                            </td>
-                            <td class="text-end">
-                                <a href="{{ route('admin.sales.receipt', $sale->id) }}" class="btn-action-view" title="View Details">
-                                    <i class="bi bi-eye-fill"></i>
-                                </a>
-                            </td>
-                        </tr>
-                    @empty
-                        <tr>
-                            <td colspan="7" class="text-center py-5 text-muted small">No sales records found for the selected period.</td>
-                        </tr>
-                    @endforelse
-                </tbody>
-            </table>
-        </div>
-    </div>
-</div>
-
-<div class="mt-4">
-    {{ $sales->links() }}
 </div>
 
 <style>

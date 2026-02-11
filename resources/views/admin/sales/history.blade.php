@@ -3,10 +3,94 @@
 @section('title', 'Sales History | Inventory Management')
 
 @section('content')
-<div class="mb-4">
-    <h1 class="page-title-new">
-        <i class="bi bi-clock-history text-primary"></i> Sales History
-    </h1>
+<div class="row justify-content-center">
+    <div class="col-xl-11">
+        <div class="mb-4 d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="page-title-new mb-1">
+                    <i class="bi bi-clock-history text-primary"></i> Sales History
+                </h1>
+                <p class="text-muted small mb-0">Track and manage all your completed sales</p>
+            </div>
+            <div class="d-flex gap-2 no-print">
+                <a href="{{ route('admin.sales.history.export', request()->all()) }}" class="btn btn-outline-success border-2 fw-700 rounded-3">
+                    <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i> Export CSV
+                </a>
+                <button onclick="window.print()" class="btn btn-outline-dark border-2 fw-700 rounded-3">
+                    <i class="bi bi-printer-fill me-1"></i> Print History
+                </button>
+            </div>
+        </div>
+
+{{-- Filter Card --}}
+<div class="card recent-sales-card border-0 shadow-sm mb-4 no-print">
+    <div class="card-body p-4">
+        <form method="GET" action="{{ route('admin.sales.history') }}" class="row g-3">
+            <div class="col-md-2">
+                <label for="receipt_no" class="form-label-new" style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Receipt #</label>
+                <input type="text" class="form-control border-0 bg-light" id="receipt_no" name="receipt_no" value="{{ request('receipt_no') }}" placeholder="000001">
+            </div>
+            <div class="col-md-3">
+                <label for="start_date" class="form-label-new" style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Start Date</label>
+                <input type="date" class="form-control border-0 bg-light" id="start_date" name="start_date" value="{{ request('start_date') }}">
+            </div>
+            <div class="col-md-3">
+                <label for="end_date" class="form-label-new" style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">End Date</label>
+                <input type="date" class="form-control border-0 bg-light" id="end_date" name="end_date" value="{{ request('end_date') }}">
+            </div>
+            <div class="col-md-3">
+                <label for="payment_method" class="form-label-new" style="font-size: 11px; font-weight: 700; color: #94a3b8; text-transform: uppercase;">Payment Method</label>
+                <select class="form-select border-0 bg-light" id="payment_method" name="payment_method">
+                    <option value="">All Methods</option>
+                    <option value="Cash" {{ request('payment_method') == 'Cash' ? 'selected' : '' }}>Cash</option>
+                    <option value="Mobile Money" {{ request('payment_method') == 'Mobile Money' ? 'selected' : '' }}>Mobile Money</option>
+                    <option value="Card" {{ request('payment_method') == 'Card' ? 'selected' : '' }}>Card</option>
+                </select>
+            </div>
+            <div class="col-md-1 d-flex align-items-end gap-2">
+                <button type="submit" class="btn btn-primary w-100 rounded-3" title="Filter">
+                    <i class="bi bi-search"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{{-- Summary Metrics --}}
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="metric-card-new shadow-sm border-0" style="padding: 1.25rem;">
+            <div class="metric-info">
+                <span class="metric-label-new">Total Sales</span>
+                <span class="metric-value-new">{{ number_format($summary['total_count']) }}</span>
+            </div>
+            <div class="metric-icon-box bg-light-blue">
+                <i class="bi bi-cart-check-fill"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="metric-card-new shadow-sm border-0" style="padding: 1.25rem;">
+            <div class="metric-info">
+                <span class="metric-label-new">Total Revenue</span>
+                <span class="metric-value-new text-success">₵{{ number_format($summary['total_revenue'], 2) }}</span>
+            </div>
+            <div class="metric-icon-box bg-light-green">
+                <i class="bi bi-currency-dollar"></i>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="metric-card-new shadow-sm border-0" style="padding: 1.25rem;">
+            <div class="metric-info">
+                <span class="metric-label-new">Total Profit</span>
+                <span class="metric-value-new text-success">₵{{ number_format($summary['total_profit'], 2) }}</span>
+            </div>
+            <div class="metric-icon-box bg-light-green">
+                <i class="bi bi-graph-up-arrow"></i>
+            </div>
+        </div>
+    </div>
 </div>
 
 @if ($sales->count() > 0)
@@ -84,15 +168,9 @@
     <div class="mt-4">
         {{ $sales->links() }}
     </div>
-@else
-    <div class="card recent-sales-card border-0 shadow-sm">
-        <div class="card-body p-5 text-center">
-            <i class="bi bi-clock-history display-4 text-light-grey mb-3 d-block"></i>
-            <h5 class="text-muted">No sales records found.</h5>
-            <p class="text-muted small">Once you start recording sales, they will appear here.</p>
-        </div>
-    </div>
 @endif
+    </div>
+</div>
 
 <style>
 .page-title-new {
@@ -108,6 +186,32 @@
     border-radius: 12px;
     background: #fff;
 }
+
+.metric-card-new {
+    background: #fff;
+    border-radius: 12px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border: 1px solid #f1f5f9;
+}
+
+.metric-info { display: flex; flex-direction: column; }
+.metric-label-new { font-size: 10px; font-weight: 700; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px; }
+.metric-value-new { font-size: 1.5rem; font-weight: 800; color: #1e293b; line-height: 1.1; }
+
+.metric-icon-box {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+}
+
+.bg-light-blue { background-color: #eff6ff; color: #3b82f6; }
+.bg-light-green { background-color: #f0fdf4; color: #22c55e; }
 
 .products-table thead th {
     background: #fff;

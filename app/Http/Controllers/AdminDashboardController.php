@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
+use App\Models\Category;
 use App\Models\Sale;
 use App\Models\User;
 use Carbon\Carbon;
@@ -16,6 +17,7 @@ class AdminDashboardController extends Controller
             // Count metrics
             $totalProducts = Product::count();
             $lowStockItems = Product::whereRaw('quantity_in_stock <= low_stock_threshold')->count();
+            $totalCategories = Category::count();
             $activeStaffCount = User::count();
 
             // Today's sales
@@ -34,6 +36,24 @@ class AdminDashboardController extends Controller
 
             // Total profit (all time)
             $totalProfit = Sale::sum(DB::raw('total_amount - total_cost')) ?? 0;
+
+            // Yesterday's sales
+            $yesterdaySales = Sale::whereDate('created_at', Carbon::yesterday())
+                ->sum('total_amount') ?? 0;
+
+            // Revenue change percentage
+            $revenueChange = 0;
+            if ($yesterdaySales > 0) {
+                $revenueChange = (($todaySales - $yesterdaySales) / $yesterdaySales) * 100;
+            } elseif ($todaySales > 0) {
+                $revenueChange = 100; // 100% increase if there was no revenue yesterday
+            }
+
+            // Profit margin percentage
+            $profitMargin = 0;
+            if ($totalRevenue > 0) {
+                $profitMargin = ($totalProfit / $totalRevenue) * 100;
+            }
 
             // Low stock products
             $lowStockProducts = Product::whereRaw('quantity_in_stock <= low_stock_threshold')
@@ -91,14 +111,50 @@ class AdminDashboardController extends Controller
                 'todayProfit',
                 'totalRevenue',
                 'totalProfit',
+                'yesterdaySales',
+                'revenueChange',
+                'profitMargin',
                 'lowStockProducts',
                 'recentSales',
                 'topProducts',
                 'salesTrend',
-                'activeStaffCount'
+                'activeStaffCount',
+                'totalCategories'
             ));
         } catch (\Exception $e) {
+            \Illuminate\Support\Facades\Log::error('Dashboard Error: ' . $e->getMessage());
+            \Illuminate\Support\Facades\Log::error($e->getTraceAsString());
             return redirect('/')->with('error', 'An error occurred while loading the dashboard. Please try again.');
+        }
+    }
+
+    public function getChartData()
+    {
+        try {
+            $salesTrend = Sale::select(
+                DB::raw('DATE(created_at) as date'),
+                DB::raw('COUNT(*) as count'),
+                DB::raw('SUM(total_amount) as revenue')
+            )
+            ->where('created_at', '>=', Carbon::now()->subDays(10))
+            ->groupBy(DB::raw('DATE(created_at)'))
+            ->orderBy('date')
+            ->get();
+
+            $labels = $salesTrend->map(function($d) {
+                $date = Carbon::parse($d->date);
+                return $date->format('d M');
+            });
+            $revenue = $salesTrend->map(fn($d) => (float)$d->revenue);
+            $count = $salesTrend->map(fn($d) => (int)$d->count);
+
+            return response()->json([
+                'labels' => $labels,
+                'revenue' => $revenue,
+                'count' => $count
+            ]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
     }
 }

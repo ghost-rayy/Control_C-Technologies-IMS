@@ -1,13 +1,13 @@
 @extends('layouts.app')
 
-@section('title', 'My Profile')
+@section('title', 'Settings')
 
 @section('content')
 <div class="mb-4">
     <h1 class="page-title-new mb-1">
-        <i class="bi bi-person-circle text-primary"></i> My Profile
+        <i class="bi bi-gear-fill text-primary"></i> Settings
     </h1>
-    <p class="text-muted small">Manage your account settings and profile information</p>
+    <p class="text-muted small">Manage your account settings and system preferences</p>
 </div>
 
 <div class="row g-4">
@@ -32,20 +32,7 @@
                         </div>
                     </div>
 
-                    <h6 class="fw-700 color-navy mb-4">Security</h6>
-                    <div class="row g-3 mb-4">
-                        <div class="col-md-6">
-                            <label for="password" class="form-label-new">New Password</label>
-                            <input type="password" name="password" id="password" class="form-control @error('password') is-invalid @enderror" placeholder="Enter new password">
-                            <p class="text-muted mt-1" style="font-size: 11px;">Leave blank to keep current password.</p>
-                            @error('password') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                        </div>
 
-                        <div class="col-md-6">
-                            <label for="password_confirmation" class="form-label-new">Confirm Password</label>
-                            <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" placeholder="Confirm new password">
-                        </div>
-                    </div>
 
                     <h6 class="fw-700 color-navy mb-4">Profile Picture</h6>
                     <div class="row g-3">
@@ -99,22 +86,6 @@
                 <div class="badge bg-light-blue text-primary px-3 py-2 fw-600" style="border-radius: 10px; font-size: 11px;">
                     Member since {{ $user->created_at->format('M Y') }}
                 </div>
-                
-                <div class="mt-4 text-start pt-4 border-top">
-                    <h6 class="fw-700 color-navy mb-3" style="font-size: 13px;">Security Tips</h6>
-                    <div class="d-flex align-items-start gap-3 mb-3">
-                        <div class="text-success" style="font-size: 16px;"><i class="bi bi-shield-check"></i></div>
-                        <p class="text-muted mb-0" style="font-size: 12px; line-height: 1.4;">Use a strong password with at least 8 characters.</p>
-                    </div>
-                    <div class="d-flex align-items-start gap-3 mb-3">
-                        <div class="text-warning" style="font-size: 16px;"><i class="bi bi-clock-history"></i></div>
-                        <p class="text-muted mb-0" style="font-size: 12px; line-height: 1.4;">We recommend changing your password regularly.</p>
-                    </div>
-                    <div class="d-flex align-items-start gap-3">
-                        <div class="text-primary" style="font-size: 16px;"><i class="bi bi-key-fill"></i></div>
-                        <p class="text-muted mb-0" style="font-size: 12px; line-height: 1.4;">Enable two-factor authentication for extra security.</p>
-                    </div>
-                </div>
             </div>
         </div>
 
@@ -139,6 +110,41 @@
                     <div>
                         <p class="fw-700 color-navy mb-0" style="font-size: 12px;">Profile updated</p>
                         <p class="text-muted mb-0" style="font-size: 11px;">1 week ago</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mt-4">
+    <div class="col-12">
+        <div class="card recent-sales-card border-0 shadow-sm">
+            <div class="card-header bg-danger text-white fw-bold" style="border-radius: 10px 10px 0 0;">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> Danger Zone
+            </div>
+            <div class="card-body p-4">
+                <div class="row align-items-center">
+                    <div class="col-md-7">
+                         <h6 class="fw-700 text-danger mb-2">Clear System Data</h6>
+                        <p class="text-muted small mb-0">
+                            This action will permanently delete all <strong>Products</strong>, <strong>Categories</strong>, <strong>Sales</strong>, and <strong>Sale Items</strong>. 
+                            <br>Users (including your admin account) will <strong>NOT</strong> be deleted.
+                            <br><strong>This action cannot be undone.</strong>
+                        </p>
+                    </div>
+                    <div class="col-md-5">
+                        <form action="{{ route('admin.database.clear') }}" method="POST" onsubmit="return confirm('Are you absolutely sure you want to clear the database? This cannot be undone.');">
+                            @csrf
+                            <div class="d-flex gap-2">
+                                <div class="flex-grow-1">
+                                    <input type="password" name="password" id="db_password" class="form-control border-danger" placeholder="Confirmation Password" required>
+                                </div>
+                                <button type="submit" class="btn btn-danger px-4 fw-bold text-nowrap">
+                                    <i class="bi bi-trash-fill me-1"></i> Clear Database
+                                </button>
+                            </div>
+                        </form>
                     </div>
                 </div>
             </div>
@@ -183,6 +189,24 @@
 .fw-700 { font-weight: 700; }
 .fw-800 { font-weight: 800; }
 .rounded-4 { border-radius: 14px !important; }
+</style>
+
+@if(session('error'))
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        setTimeout(() => {
+            const pwd = document.getElementById('db_password');
+            if (pwd) {
+                pwd.focus();
+                pwd.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
+        }, 500);
+    });
+</script>
+@endif
+
+<style>
+#db_password { position: relative; z-index: 1060 !important; }
 </style>
 
 <script>

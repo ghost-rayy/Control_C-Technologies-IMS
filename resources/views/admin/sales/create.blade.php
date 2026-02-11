@@ -3,141 +3,149 @@
 @section('title', 'Record Sale | Inventory Management')
 
 @section('content')
-<div class="container-fluid mt-4">
-    <div class="row g-4">
-        <div class="col-lg-8">
-            <div class="card recent-sales-card border-0 shadow-sm">
-                <div class="card-header bg-primary text-white py-3">
-                    <h6 class="mb-0 d-flex align-items-center gap-2">
-                        <i class="bi bi-plus-circle-fill"></i>
-                        Record New Sale
-                    </h6>
-                </div>
-                <div class="card-body">
-                    @if ($errors->any())
-                        <div class="alert alert-danger">
-                            @foreach ($errors->all() as $error)
-                                <div>{{ $error }}</div>
-                            @endforeach
-                        </div>
-                    @endif
-
-                    <form id="saleForm" method="POST" action="{{ route('admin.sales.store') }}">
-                        @csrf
-
-                        <!-- Product Selection -->
-                        <div class="mb-4">
-                            <label for="productSearch" class="form-label-new">Search Products</label>
-                            <div class="input-group-new">
-                                <input type="text" id="productSearch" class="form-control" placeholder="Search by product name or brand...">
-                                <span class="search-icon">
-                                    <i class="bi bi-search"></i>
-                                </span>
-                            </div>
-                            <div id="productList" class="search-results-dropdown" style="display: none;">
-                                <!-- Products will be loaded here -->
-                            </div>
-                        </div>
-
-                        <!-- Selected Items -->
-                        <div class="mb-4">
-                            <h6 class="form-label-new mb-3">Selected Items</h6>
-                            <div class="table-responsive border rounded-3">
-                                <table class="table recent-sales-table mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>Product</th>
-                                            <th>Unit Price</th>
-                                            <th>Qty</th>
-                                            <th>Total</th>
-                                            <th class="text-end">Action</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="itemsBody">
-                                        <!-- Items will be added here -->
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-
-                        <!-- Payment Method -->
-                        <div class="mb-4">
-                            <label for="paymentMethod" class="form-label-new">Payment Method</label>
-                            <select name="payment_method" id="paymentMethod" class="form-select" required>
-                                <option value="">Select payment method...</option>
-                                <option value="Cash">Cash</option>
-                                <option value="Mobile Money">Mobile Money</option>
-                                <option value="Card">Card</option>
-                            </select>
-                        </div>
- 
-                        <!-- Transaction Reference -->
-                        <div class="mb-4">
-                            <label for="transactionRef" class="form-label-new">Transaction Reference <span class="text-muted fw-normal">(Optional)</span></label>
-                            <input type="text" name="transaction_ref" id="transactionRef" class="form-control" placeholder="e.g., M123456">
-                        </div>
-
-                        <!-- Hidden Items Input -->
-                        <input type="hidden" id="itemsInput" name="items" value="[]">
-
-                        <!-- Buttons -->
-                        <div class="d-flex gap-2 pt-2 border-top">
-                            <button type="submit" class="btn btn-save-new" id="submitBtn" disabled>
-                                <i class="bi bi-check-circle-fill"></i> Complete Sale
-                            </button>
-                            <a href="{{ route('admin.dashboard') }}" class="btn btn-cancel-new">
-                                <i class="bi bi-x-lg"></i> Cancel
-                            </a>
-                        </div>
-                    </form>
-                </div>
-            </div>
+<div class="row justify-content-center">
+    <div class="col-xl-11">
+        <div class="mb-4">
+            <h1 class="page-title-new mb-1">
+                <i class="bi bi-cart-plus-fill text-primary"></i> Record New Sale
+            </h1>
+            <p class="text-muted small">Search for products and add them to the sale summary</p>
         </div>
 
-        <!-- Summary Sidebar -->
-        <div class="col-md-4">
-            <div class="card recent-sales-card border-0 shadow-sm sticky-top" style="top: 20px;">
-                <div class="card-header bg-turquoise text-white py-3">
-                    <h6 class="mb-0 d-flex align-items-center gap-2">
-                        <i class="bi bi-journal-text"></i> Sale Summary
-                    </h6>
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="card recent-sales-card border-0 shadow-sm h-100">
+                    <div class="card-header bg-white border-bottom py-3">
+                        <h6 class="mb-0" style="font-weight: 700; color: #1e293b;">
+                            <i class="bi bi-box-seam me-2 text-primary"></i> Product Selection
+                        </h6>
+                    </div>
+                    <div class="card-body p-4">
+                        @if ($errors->any())
+                            <div class="alert alert-danger mb-4">
+                                <ul class="mb-0">
+                                    @foreach ($errors->all() as $error)
+                                        <li>{{ $error }}</li>
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+
+                        <form id="saleForm" method="POST" action="{{ route('admin.sales.store') }}">
+                            @csrf
+
+                            <!-- Product Selection -->
+                            <div class="mb-4">
+                                <label for="productSearch" class="form-label-new">Search Products</label>
+                                <div class="input-group-new">
+                                    <input type="text" id="productSearch" class="form-control" placeholder="Search by product name, brand or model...">
+                                    <span class="search-icon">
+                                        <i class="bi bi-search"></i>
+                                    </span>
+                                </div>
+                                <div id="productList" class="search-results-dropdown" style="display: none;">
+                                    <!-- Products will be loaded here -->
+                                </div>
+                            </div>
+
+                            <!-- Selected Items -->
+                            <div class="mb-4">
+                                <h6 class="form-label-new mb-3">Selected Items</h6>
+                                <div class="table-responsive border rounded-3">
+                                    <table class="table recent-sales-table mb-0">
+                                        <thead>
+                                            <tr>
+                                                <th>Product</th>
+                                                <th>Unit Price</th>
+                                                <th>Qty</th>
+                                                <th>Total</th>
+                                                <th class="text-end">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="itemsBody">
+                                            <!-- Items will be added here -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-4">
+                                    <label for="paymentMethod" class="form-label-new">Payment Method <span class="text-danger">*</span></label>
+                                    <select name="payment_method" id="paymentMethod" class="form-select" required>
+                                        <option value="">Select payment method...</option>
+                                        <option value="Cash">Cash</option>
+                                        <option value="Mobile Money">Mobile Money</option>
+                                        <option value="Card">Card</option>
+                                    </select>
+                                </div>
+         
+                                <div class="col-md-6 mb-4">
+                                    <label for="transactionRef" class="form-label-new">Transaction Reference <span class="text-muted fw-normal">(Optional)</span></label>
+                                    <input type="text" name="transaction_ref" id="transactionRef" class="form-control" placeholder="e.g., M123456">
+                                </div>
+                            </div>
+
+                            <input type="hidden" id="itemsInput" name="items" value="[]">
+
+                            <div class="d-flex gap-2 pt-4 border-top">
+                                <button type="submit" class="btn btn-save-new px-4" id="submitBtn" disabled>
+                                    <i class="bi bi-check-circle-fill"></i> Complete Sale
+                                </button>
+                                <a href="{{ route('admin.dashboard') }}" class="btn btn-cancel-new px-4">
+                                    <i class="bi bi-x-lg"></i> Cancel
+                                </a>
+                            </div>
+                        </form>
+                    </div>
                 </div>
-                <div class="card-body p-4">
-                    <div class="summary-line">
-                        <span class="label">Items:</span>
-                        <span class="value" id="itemCount">0</span>
+            </div>
+
+            <!-- Summary Sidebar -->
+            <div class="col-lg-4">
+                <div class="card recent-sales-card border-0 shadow-sm sticky-top" style="top: 20px;">
+                    <div class="card-header bg-turquoise text-white py-3">
+                        <h6 class="mb-0 d-flex align-items-center gap-2">
+                            <i class="bi bi-journal-text"></i> Sale Summary
+                        </h6>
                     </div>
-                    
-                    <div class="summary-line">
-                        <span class="label">Subtotal:</span>
-                        <span class="value" id="subtotal">₵ 0.00</span>
-                    </div>
- 
-                    <hr class="my-3 opacity-10">
- 
-                    <div class="summary-line secondary">
-                        <span class="label">Cost:</span>
-                        <span class="value" id="totalCost">₵ 0.00</span>
-                    </div>
-                    <div class="summary-line secondary">
-                        <span class="label">Profit:</span>
-                        <span class="value text-success" id="totalProfit">₵ 0.00</span>
-                    </div>
- 
-                    <hr class="my-4 opacity-10">
- 
-                    <div class="summary-line total">
-                        <span class="label">Total Amount:</span>
-                        <span class="value text-primary" id="totalAmount">₵ 0.00</span>
-                    </div>
- 
-                    <!-- Tip Box -->
-                    <div class="tip-box mt-4">
-                        <div class="d-flex gap-2">
-                            <i class="bi bi-info-circle-fill text-primary"></i>
-                            <div>
-                                <h6 class="mb-1 text-primary" style="font-size: 13px;">Quick Tip</h6>
-                                <p class="mb-0 text-muted" style="font-size: 11px; line-height: 1.4;">Search and add products to start recording your sale. All changes are calculated in real-time.</p>
+                    <div class="card-body p-4">
+                        <div class="summary-line">
+                            <span class="label">Items:</span>
+                            <span class="value" id="itemCount">0</span>
+                        </div>
+                        
+                        <div class="summary-line">
+                            <span class="label">Subtotal:</span>
+                            <span class="value" id="subtotal">₵ 0.00</span>
+                        </div>
+     
+                        <hr class="my-3 opacity-10">
+     
+                        <div class="summary-line secondary">
+                            <span class="label">Cost:</span>
+                            <span class="value" id="totalCost">₵ 0.00</span>
+                        </div>
+                        <div class="summary-line secondary">
+                            <span class="label">Profit:</span>
+                            <span class="value text-success" id="totalProfit">₵ 0.00</span>
+                        </div>
+     
+                        <hr class="my-4 opacity-10">
+     
+                        <div class="summary-line total">
+                            <span class="label">Total Amount:</span>
+                            <span class="value text-primary" id="totalAmount">₵ 0.00</span>
+                        </div>
+     
+                        <!-- Tip Box -->
+                        <div class="tip-box-blue mt-4">
+                            <div class="d-flex gap-3">
+                                <i class="bi bi-info-circle-fill text-primary" style="font-size: 1.25rem;"></i>
+                                <div>
+                                    <h6 class="mb-1" style="font-weight: 700; color: #1e293b; font-size: 14px;">Quick Tip</h6>
+                                    <p class="mb-0 text-muted" style="font-size: 12px; line-height: 1.5;">Search and add products to start recording your sale. All changes are calculated in real-time.</p>
+                                </div>
                             </div>
                         </div>
                     </div>

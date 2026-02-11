@@ -102,12 +102,96 @@ class SalesRecordingController extends Controller
         return view('admin.sales.print', compact('sale'));
     }
 
-    public function history()
+    public function history(Request $request)
     {
-        $sales = Sale::with('items.product')
-            ->latest()
-            ->paginate(15);
+        $query = Sale::query();
 
-        return view('admin.sales.history', compact('sales'));
+        if ($request->filled('start_date') && $request->filled('end_date')) {
+            $query->whereBetween('created_at', [
+                \Carbon\Carbon::parse($request->start_date)->startOfDay(),
+                \Carbon\Carbon::parse($request->end_date)->endOfDay()
+            ]);
+        }
+
+        if ($request->filled('payment_method')) {
+            $query->where('payment_method', $request->payment_method);
+        }
+
+        if ($request->filled('receipt_no')) {
+            $receiptId = ltrim($request->receipt_no, '#0');
+            $query->where('id', $receiptId);
+        }
+
+        // Calculate summary metrics for the filtered results (before pagination)
+        $summary = [
+            'total_revenue' => (clone $query)->sum('total_amount'),
+            'total_profit' => (clone $query)->sum(\Illuminate\Support\Facades\DB::raw('total_amount - total_cost')),
+            'total_count' => (clone $query)->count(),
+        ];
+
+        $sales = $query->with('items.product', 'user')
+            ->latest()
+            ->paginate(15)
+            ->withQueryString();
+
+        return view('admin.sales.history', compact('sales', 'summary'));
+    }
+
+    public function export(Request $request)
+    {
+        try {
+            $query = Sale::query();
+
+            if ($request->filled('start_date') && $request->filled('end_date')) {
+                $query->whereBetween('created_at', [
+                    \Carbon\Carbon::parse($request->start_date)->startOfDay(),
+                    \Carbon\Carbon::parse($request->end_date)->endOfDay()
+                ]);
+            }
+
+            if ($request->filled('payment_method')) {
+                $query->where('payment_method', $request->payment_method);
+            }
+
+            if ($request->filled('receipt_no')) {
+                $receiptId = ltrim($request->receipt_no, '#0');
+                $query->where('id', $receiptId);
+            }
+
+            $sales = $query->with('items.product', 'user')->latest()->get();
+
+            $filename = "sales_history_" . date('Y-m-d_H-i-s') . ".csv";
+            $headers = [
+                "Content-type" => "text/csv",
+                "Content-Disposition" => "attachment; filename=$filename",
+                "Pragma" => "no-cache",
+                "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+                "Expires" => "0"
+            ];
+
+            $columns = ['Receipt #', 'Date', 'Staff', 'Items Count', 'Payment Method', 'Amount', 'Profit'];
+
+            $callback = function() use ($sales, $columns) {
+                $file = fopen('php://output', 'w');
+                fputcsv($file, $columns);
+
+                foreach ($sales as $sale) {
+                    fputcsv($file, [
+                        str_pad($sale->id, 6, '0', STR_PAD_LEFT),
+                        $sale->created_at->format('Y-m-d H:i:s'),
+                        $sale->user->name,
+                        $sale->items->count(),
+                        $sale->payment_method,
+                        $sale->total_amount,
+                        $sale->total_amount - $sale->total_cost,
+                    ]);
+                }
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to export history: ' . $e->getMessage());
+        }
     }
 }

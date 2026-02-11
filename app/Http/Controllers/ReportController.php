@@ -34,24 +34,16 @@ class ReportController extends Controller
     {
         try {
             $validated = $request->validate([
-                'start_date' => 'required|date',
-                'end_date' => 'required|date|after_or_equal:start_date',
-                'product_id' => 'nullable|exists:products,id',
+                'start_date' => 'nullable|date',
+                'end_date' => 'nullable|date|after_or_equal:start_date',
                 'payment_method' => 'nullable|string|in:Cash,Mobile Money,Card',
             ]);
 
+            $startDate = $validated['start_date'] ? Carbon::parse($validated['start_date'])->startOfDay() : Carbon::now()->subDays(30)->startOfDay();
+            $endDate = $validated['end_date'] ? Carbon::parse($validated['end_date'])->endOfDay() : Carbon::now()->endOfDay();
+
             $query = Sale::query();
-
-            $startDate = Carbon::createFromFormat('Y-m-d', $validated['start_date'])->startOfDay();
-            $endDate = Carbon::createFromFormat('Y-m-d', $validated['end_date'])->endOfDay();
-
             $query->whereBetween('created_at', [$startDate, $endDate]);
-
-            if ($validated['product_id'] ?? false) {
-                $query->whereHas('items', function ($q) use ($validated) {
-                    $q->where('product_id', $validated['product_id']);
-                });
-            }
 
             if ($validated['payment_method'] ?? false) {
                 $query->where('payment_method', $validated['payment_method']);
@@ -59,7 +51,8 @@ class ReportController extends Controller
 
             $sales = $query->with('user', 'items.product')
                 ->latest()
-                ->paginate(20);
+                ->paginate(20)
+                ->withQueryString();
 
             $summary = $this->generateSummary($startDate, $endDate, $query->clone());
 
@@ -68,6 +61,59 @@ class ReportController extends Controller
             return back()->withErrors($e->errors())->withInput();
         } catch (\Exception $e) {
             return back()->with('error', 'Failed to filter reports. Please try again.');
+        }
+    }
+
+    public function export(Request $request)
+    {
+        try {
+            $query = Sale::query();
+
+            if ($request->filled('start_date') && $request->filled('end_date')) {
+                $startDate = Carbon::parse($request->start_date)->startOfDay();
+                $endDate = Carbon::parse($request->end_date)->endOfDay();
+                $query->whereBetween('created_at', [$startDate, $endDate]);
+            }
+
+            if ($request->filled('payment_method')) {
+                $query->where('payment_method', $request->payment_method);
+            }
+
+            $sales = $query->with('user', 'items.product')->latest()->get();
+
+            $filename = "sales_report_" . date('Y-m-d_H-i-s') . ".csv";
+            $headers = [
+                "Content-type" => "text/csv",
+                "Content-Disposition" => "attachment; filename=$filename",
+                "Pragma" => "no-cache",
+                "Cache-Control" => "must-revalidate, post-check=0, pre-check=0",
+                "Expires" => "0"
+            ];
+
+            $columns = ['Date', 'Receipt #', 'Staff', 'Items Count', 'Payment Method', 'Revenue', 'Cost', 'Profit'];
+
+            $callback = function() use ($sales, $columns) {
+                $file = fopen('php://output', 'w');
+                fputcsv($file, $columns);
+
+                foreach ($sales as $sale) {
+                    fputcsv($file, [
+                        $sale->created_at->format('Y-m-d H:i:s'),
+                        str_pad($sale->id, 6, '0', STR_PAD_LEFT),
+                        $sale->user->name,
+                        $sale->items->count(),
+                        $sale->payment_method,
+                        $sale->total_amount,
+                        $sale->total_cost,
+                        $sale->total_amount - $sale->total_cost,
+                    ]);
+                }
+                fclose($file);
+            };
+
+            return response()->stream($callback, 200, $headers);
+        } catch (\Exception $e) {
+            return back()->with('error', 'Failed to export report: ' . $e->getMessage());
         }
     }
 

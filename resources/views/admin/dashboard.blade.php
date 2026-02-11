@@ -147,11 +147,11 @@
     <div class="col-lg-3 col-md-6">
         <div class="metric-card-new">
             <div class="metric-info">
-                <span class="metric-label-new">Active Staff</span>
-                <span class="metric-value-new">{{ $activeStaffCount }}</span>
+                <span class="metric-label-new">Total Categories</span>
+                <span class="metric-value-new">{{ $totalCategories }}</span>
             </div>
             <div class="metric-icon-box bg-light-purple">
-                <i class="bi bi-people-fill"></i>
+                <i class="bi bi-tag-fill"></i>
             </div>
         </div>
     </div>
@@ -163,21 +163,28 @@
         <div class="revenue-card-new grad-green">
             <div class="revenue-label">Today's Revenue</div>
             <div class="revenue-val">₵{{ number_format($todaySales, 2) }}</div>
-            <div class="revenue-meta">+12.5% from yesterday</div>
+            <div class="revenue-meta">
+                @if($revenueChange >= 0)
+                    <i class="bi bi-arrow-up-short"></i>+{{ number_format($revenueChange, 1) }}%
+                @else
+                    <i class="bi bi-arrow-down-short"></i>{{ number_format($revenueChange, 1) }}%
+                @endif
+                from yesterday
+            </div>
         </div>
     </div>
     <div class="col-lg-4">
         <div class="revenue-card-new grad-blue">
             <div class="revenue-label">Total Revenue (All-Time)</div>
             <div class="revenue-val">₵{{ number_format($totalRevenue, 2) }}</div>
-            <div class="revenue-meta">Since launch</div>
+            <div class="revenue-meta">Since system launch</div>
         </div>
     </div>
     <div class="col-lg-4">
         <div class="revenue-card-new grad-green">
             <div class="revenue-label">Total Profit (All-Time)</div>
             <div class="revenue-val">₵{{ number_format($totalProfit, 2) }}</div>
-            <div class="revenue-meta">29% margin</div>
+            <div class="revenue-meta">{{ number_format($profitMargin, 1) }}% margin</div>
         </div>
     </div>
 </div>
@@ -504,104 +511,144 @@
 @section('extra-js')
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script>
-const ctx = document.getElementById('salesChart').getContext('2d');
-const salesData = {!! json_encode($salesTrend) !!};
+document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('salesChart').getContext('2d');
+    
+    // Gradient setup
+    const revGradient = ctx.createLinearGradient(0, 0, 0, 400);
+    revGradient.addColorStop(0, 'rgba(46, 204, 113, 0.2)');
+    revGradient.addColorStop(1, 'rgba(46, 204, 113, 0)');
 
-const labels = salesData.map(d => {
-    const date = new Date(d.date);
-    const day = date.getDate();
-    const month = date.toLocaleString('en-US', { month: 'short' });
-    return `${day} ${month}`;
-});
-const revenue = salesData.map(d => parseFloat(d.revenue) || 0);
-const count = salesData.map(d => parseInt(d.count) || 0);
+    const countGradient = ctx.createLinearGradient(0, 0, 0, 400);
+    countGradient.addColorStop(0, 'rgba(52, 152, 219, 0.2)');
+    countGradient.addColorStop(1, 'rgba(52, 152, 219, 0)');
 
-new Chart(ctx, {
-    type: 'line',
-    data: {
-        labels: labels,
-        datasets: [
-            {
-                label: 'Revenue (₵)',
-                data: revenue,
-                borderColor: '#2ecc71',
-                backgroundColor: '#2ecc71',
-                borderWidth: 2,
-                pointRadius: 4,
-                pointBackgroundColor: '#2ecc71',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                pointHoverRadius: 6,
-                tension: 0,
-                yAxisID: 'y'
+    let salesChart;
+
+    function initChart(data) {
+        if (salesChart) {
+            salesChart.destroy();
+        }
+
+        salesChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: data.labels,
+                datasets: [
+                    {
+                        label: 'Revenue (₵)',
+                        data: data.revenue,
+                        borderColor: '#2ecc71',
+                        backgroundColor: revGradient,
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#2ecc71',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 6,
+                        tension: 0.3,
+                        fill: true,
+                        yAxisID: 'y'
+                    },
+                    {
+                        label: 'Sales Count',
+                        data: data.count,
+                        borderColor: '#3498db',
+                        backgroundColor: countGradient,
+                        borderWidth: 3,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#3498db',
+                        pointBorderColor: '#fff',
+                        pointBorderWidth: 2,
+                        pointHoverRadius: 6,
+                        tension: 0.3,
+                        fill: true,
+                        yAxisID: 'y1'
+                    }
+                ]
             },
-            {
-                label: 'Sales Count',
-                data: count,
-                borderColor: '#3498db',
-                backgroundColor: '#3498db',
-                borderWidth: 2,
-                pointRadius: 4,
-                pointBackgroundColor: '#3498db',
-                pointBorderColor: '#fff',
-                pointBorderWidth: 2,
-                pointHoverRadius: 6,
-                tension: 0,
-                yAxisID: 'y1'
-            }
-        ]
-    },
-    options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        interaction: { mode: 'index', intersect: false },
-        plugins: {
-            legend: {
-                position: 'top',
-                align: 'start',
-                labels: {
-                    usePointStyle: true,
-                    boxWidth: 8,
-                    padding: 20,
-                    font: { size: 12, weight: '500' },
-                    color: '#64748b'
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                plugins: {
+                    legend: {
+                        position: 'top',
+                        align: 'end',
+                        labels: {
+                            usePointStyle: true,
+                            boxWidth: 8,
+                            padding: 20,
+                            font: { size: 12, weight: '600' },
+                            color: '#64748b'
+                        }
+                    },
+                    tooltip: {
+                        backgroundColor: 'rgba(30, 41, 59, 0.9)',
+                        padding: 12,
+                        titleFont: { size: 13, weight: '700' },
+                        bodyFont: { size: 13 },
+                        displayColors: true,
+                        usePointStyle: true,
+                        cornerRadius: 8,
+                        boxPadding: 6
+                    }
+                },
+                scales: {
+                    y: {
+                        type: 'linear',
+                        position: 'left',
+                        border: { display: false },
+                        grid: { color: '#f1f5f9' },
+                        ticks: { 
+                            color: '#94a3b8', 
+                            font: { size: 11 },
+                            callback: function(value) { return '₵' + value.toLocaleString(); }
+                        }
+                    },
+                    y1: {
+                        type: 'linear',
+                        position: 'right',
+                        border: { display: false },
+                        grid: { display: false },
+                        ticks: { 
+                            color: '#94a3b8', 
+                            font: { size: 11 },
+                            stepSize: 1
+                        }
+                    },
+                    x: {
+                        border: { display: false },
+                        grid: { display: false },
+                        ticks: { color: '#64748b', font: { size: 11, weight: '600' } }
+                    }
                 }
-            },
-            tooltip: {
-                backgroundColor: '#1e293b',
-                padding: 12,
-                titleFont: { size: 13 },
-                bodyFont: { size: 13 },
-                displayColors: true,
-                usePointStyle: true
             }
-        },
-        scales: {
-            y: {
-                type: 'linear',
-                position: 'left',
-                border: { display: false },
-                grid: { color: '#f1f5f9' },
-                ticks: { 
-                    color: '#94a3b8', 
-                    font: { size: 10 },
-                    callback: function(value) { return '₵' + value; }
-                }
-            },
-            y1: {
-                type: 'linear',
-                position: 'right',
-                border: { display: false },
-                grid: { display: false },
-                ticks: { color: '#94a3b8', font: { size: 10 } }
-            },
-            x: {
-                border: { display: false },
-                grid: { display: false },
-                ticks: { color: '#94a3b8', font: { size: 10 } }
+        });
+    }
+
+    // Initial data from server-side
+    const initialData = {
+        labels: {!! json_encode($salesTrend->map(fn($d) => \Carbon\Carbon::parse($d->date)->format('d M'))) !!},
+        revenue: {!! json_encode($salesTrend->map(fn($d) => (float)$d->revenue)) !!},
+        count: {!! json_encode($salesTrend->map(fn($d) => (int)$d->count)) !!}
+    };
+    initChart(initialData);
+
+    // Auto-refresh every 30 seconds
+    async function refreshData() {
+        try {
+            const response = await fetch("{{ route('admin.api.chart-data') }}");
+            const newData = await response.json();
+            if (newData.labels) {
+                initChart(newData);
             }
+        } catch (error) {
+            console.error('Failed to refresh chart data:', error);
         }
     }
+
+    setInterval(refreshData, 30000);
 });
 </script>
 @endsection

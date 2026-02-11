@@ -105,10 +105,32 @@
     </div>
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            new bootstrap.Modal(document.getElementById('infoGeneralModal')).show();
+            const modalEl = document.getElementById('infoGeneralModal');
+            if (modalEl) {
+                const modal = new bootstrap.Modal(modalEl);
+                modal.show();
+            }
         });
     </script>
 @endif
+
+<script>
+function cleanupModal() {
+    document.body.classList.remove('modal-open');
+    document.querySelectorAll('.modal-backdrop').forEach(b => b.remove());
+    document.body.style.overflow = '';
+    document.body.style.paddingRight = '';
+    // Ensure the window has focus to allow typing
+    window.focus();
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    // Attach cleanup to all existing modals and any future ones
+    document.addEventListener('hidden.bs.modal', function (event) {
+        cleanupModal();
+    });
+});
+</script>
 
 <style>
 .fw-700 { font-weight: 700; }

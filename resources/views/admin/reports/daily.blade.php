@@ -3,14 +3,24 @@
 @section('title', 'Daily Report')
 
 @section('content')
-<div class="mb-4">
-    <h1 class="page-title-new mb-1">
-        <i class="bi bi-calendar-check-fill text-primary"></i> Daily Sales Report
-    </h1>
-    <p class="text-muted small">Analyze sales performance for a specific calendar day</p>
+<div class="mb-4 d-flex justify-content-between align-items-center">
+    <div>
+        <h1 class="page-title-new mb-1">
+            <i class="bi bi-calendar-check-fill text-primary"></i> Daily Sales Report
+        </h1>
+        <p class="text-muted small mb-0">Analyze sales performance for a specific calendar day</p>
+    </div>
+    <div class="d-flex gap-2 no-print">
+        <a href="{{ route('admin.reports.export', ['start_date' => $date, 'end_date' => $date]) }}" class="btn btn-outline-success border-2 fw-700 rounded-3">
+            <i class="bi bi-file-earmark-spreadsheet-fill me-1"></i> Export CSV
+        </a>
+        <button onclick="window.print()" class="btn btn-outline-dark border-2 fw-700 rounded-3">
+            <i class="bi bi-printer-fill me-1"></i> Print Report
+        </button>
+    </div>
 </div>
 
-<div class="card recent-sales-card border-0 shadow-sm mb-4">
+<div class="card recent-sales-card border-0 shadow-sm mb-4 no-print">
     <div class="card-body p-4">
         <form method="GET" action="{{ route('admin.reports.daily') }}" class="row g-2">
             <div class="col-md-4">
